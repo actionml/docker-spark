@@ -20,10 +20,8 @@ ADD entrypoint.sh spark-defaults.conf spark-env /
 
 ENV SPARK_HOME /usr/local/spark
 
-# Pass the following vars to redefine automatic setup:
-#   SPARK_SHELL_IP SPARK_WORKER_IP SPARK_MASTER_IP
-# The first two are custom for this container.
-# For the full list of vars visit https://spark.apache.org/docs/latest/spark-standalone.html.
+# Some env vars can be passed to alter the behaviour, for additional
+# details please visit https://spark.apache.org/docs/latest/spark-standalone.html
 
 EXPOSE 8080 7077 8888 8081 4040 7001 7002 7003 7004 7005 7006 
 ENTRYPOINT [ "/entrypoint.sh" ]
