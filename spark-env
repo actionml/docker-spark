@@ -1,0 +1,51 @@
+# -*- mode:shell-script-*-
+
+# Eval default args based on arguments passed
+spark_args() {
+  local args= host="$SPARK_IP" port="$SPARK_PORT" webui_port="$SPARK_WEBUI_PORT"
+
+  while [ ! -z $1 ]; do
+    case $1 in
+      -i|-h|--ip|--host)
+          host="$2"
+          shift
+          ;;
+      -p|--port)
+          port="$2"
+          shift
+          ;;
+      --webui-port)
+          webui_port=$2
+          shift
+          ;;
+      *)
+          args="${args} $1"
+          shift
+          ;;
+    esac
+  done
+
+  [ -z "$host" ] || echo -n "--host ${host} "
+  [ -z "$port" ] || echo -n "--port ${port} "
+  [ -z "$webui_port" ] || echo -n "--webui-port ${webui_port} "
+  echo "$args"
+}
+
+# -------------------------------------------------------------
+. "${SPARK_HOME}/sbin/spark-config.sh"
+. "${SPARK_HOME}/bin/load-spark-env.sh"
+
+# Set default environment variables
+case $INSTANCE in
+  master)
+      CLASS="org.apache.spark.deploy.master.Master"
+      # Use first found ip address (default)
+      SPARK_IP=${SPARK_MASTER_IP:-$(hostname -i | cut -f1 -d' ')}
+      SPARK_PORT=${SPARK_MASTER_PORT:-7077}
+      SPARK_WEBUI_PORT=${SPARK_MASTER_WEBUI_PORT:=8080}
+    ;;
+  worker)
+      CLASS="org.apache.spark.deploy.worker.Worker"
+      SPARK_WEBUI_PORT=${SPARK_WORKER_WEBUI_PORT:=8081}
+    ;;
+esac
