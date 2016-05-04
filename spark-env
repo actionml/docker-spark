@@ -8,15 +8,15 @@ spark_args() {
     case $1 in
       -i|-h|--ip|--host)
           host="$2"
-          shift
+          shift 2
           ;;
       -p|--port)
           port="$2"
-          shift
+          shift 2
           ;;
       --webui-port)
           webui_port=$2
-          shift
+          shift 2
           ;;
       *)
           args="${args} $1"
