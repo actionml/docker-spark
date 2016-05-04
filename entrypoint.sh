@@ -11,6 +11,7 @@ master|worker)
     shift
     . "/spark-env"
     : ${SPARK_HOME:?must be set!}
+    spark_args $@
     ${SPARK_HOME}/bin/spark-class $CLASS $default_opts $(spark_args $@)
   ;;
 shell)
