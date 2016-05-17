@@ -23,12 +23,11 @@ master|worker)
     shift
     CLASS="org.apache.spark.deploy.$instance.${instance^}"
 
-    # # Handle custom bind address, we make it 0.0.0.0 as the default one.
-    # if ( ! cli_bind_address $@  ); then
-    #   eval bind_address=\$SPARK_${instance^^}_IP
-    #   : ${bind_address:=0.0.0.0}
-    #   default_opts="${default_opts} --host ${bind_address}"
-    # fi
+    # Handle custom bind address set via ENV or CLI
+    eval bind_address=\$SPARK_${instance^^}_IP
+    if ( ! cli_bind_address $@ ) && [ ! -z $bind_address ] ; then
+      default_opts="${default_opts} --host ${bind_address}"
+    fi
 
     echo "spark-class invocation arguments: $default_opts $@"
     ${SPARK_HOME}/bin/spark-class $CLASS $default_opts $@
