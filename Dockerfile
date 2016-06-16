@@ -22,6 +22,7 @@ RUN wget -qO- http://www.eu.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-ha
 ADD entrypoint.sh spark-defaults.conf /
 
 ENV SPARK_HOME /usr/local/spark
+RUN chown -r $SPARK_USER.$SPARK_USER /usr/local/spark
 
 # Some env vars can be passed to alter the behaviour, for additional
 # details please visit https://spark.apache.org/docs/latest/spark-standalone.html
