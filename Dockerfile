@@ -1,6 +1,9 @@
 FROM debian:jessie
 MAINTAINER Denis Baryshev <dennybaa@gmail.com>
 
+ENV SPARK_USER aml
+RUN adduser --disabled-login --gecos "" $SPARK_USER
+
 RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" \
       >/etc/apt/sources.list.d/webupd8team-java.list && \
     echo "debconf shared/accepted-oracle-license-v1-1 select true" | /usr/bin/debconf-set-selections && \
