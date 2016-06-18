@@ -19,10 +19,13 @@ RUN wget -qO- http://www.eu.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-ha
       | tar -xz -C /usr/local/ && \
         ln -s spark-1.6.1-bin-hadoop2.6 /usr/local/spark
 
+# Chown as aml spark home (it's symlinked)
+RUN chown -R $SPARK_USER.$SPARK_USER /usr/local/spark-1.6.1-bin-hadoop2.6
+
 ADD entrypoint.sh spark-defaults.conf /
 
 ENV SPARK_HOME /usr/local/spark
-RUN chown -R $SPARK_USER.$SPARK_USER /usr/local/spark
+
 
 # Some env vars can be passed to alter the behaviour, for additional
 # details please visit https://spark.apache.org/docs/latest/spark-standalone.html
