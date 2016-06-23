@@ -1,3 +1,5 @@
+[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/dennybaa/spark) [![Build Status](https://travis-ci.org/dennybaa/docker-spark.svg?branch=master)](https://travis-ci.org/dennybaa/docker-spark)
+
 # Docker container for spark (standalone cluster)
 
 ## Starting up

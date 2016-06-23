@@ -1,0 +1,26 @@
+language: bash
+services: docker
+
+env:
+  global:
+    - PROJECT=spark
+    - NAMESPACE=dennybaa
+
+install:
+  - git clone https://github.com/docker-library/official-images.git ~/official-images
+
+before_script:
+  - test "${TRAVIS_BRANCH}" != "master" && export tag=${TRAVIS_BRANCH} || export tag=latest
+
+script:
+  - docker build -t $NAMESPACE/$PROJECT:$tag .
+  - ~/official-images/test/run.sh $NAMESPACE/$PROJECT:$tag
+
+after_script:
+  - docker images
+
+after_success:
+  - if [[ "${TRAVIS_REPO_SLUG}" =~ "${NAMESPACE}/" ]]; then
+      docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker push $NAMESPACE/$PROJECT:$tag;
+    fi
