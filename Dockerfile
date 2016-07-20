@@ -1,8 +1,11 @@
-FROM dennybaa/debian-jvm:oracle8
+FROM java:8-jre-alpine
 MAINTAINER Denis Baryshev <dennybaa@gmail.com>
 
+# Update alpine and install required tools
+RUN apk update && apk add --update bash curl
+
 # Fetch and unpack spark dist
-RUN wget -qO- http://www.us.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz \
+RUN curl -L http://www.us.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz \
       | tar -xzp -C /usr/local/ && \
         ln -s spark-1.6.1-bin-hadoop2.6 /usr/local/spark
 
