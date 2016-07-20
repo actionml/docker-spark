@@ -4,23 +4,36 @@ services: docker
 env:
   global:
     - PROJECT=spark
-    - NAMESPACE=dennybaa
+    - NAMESPACE=actionml
 
 install:
   - git clone https://github.com/docker-library/official-images.git ~/official-images
 
 before_script:
-  - test "${TRAVIS_BRANCH}" != "master" && export tag=${TRAVIS_BRANCH} || export tag=latest
+  # Set container variant name which defines tag name (aka container:version-variant)
+  - "[ ${TRAVIS_BRANCH} == master ] || export variant=${TRAVIS_BRANCH}"
 
 script:
-  - docker build -t $NAMESPACE/$PROJECT:$tag .
-  - ~/official-images/test/run.sh $NAMESPACE/$PROJECT:$tag
+  - docker build -t container .
+  - ~/official-images/test/run.sh container
+  # Fetch versions from label metadata
+  - export versions=$(docker inspect -f "{{.Config.Labels.version_tags}}" container | sed -r 's/"|\[|\]//g' | sed 's/,/ /g')
+  - |
+      # Create tags from the list
+      for version in $versions; do
+        tag=${version}-${variant}
+        tag=${tag%-}
+        docker tag container $NAMESPACE/$PROJECT:${tag}
+      done
+      # Tag latest (on master branch)
+      [ ! -z "$variant" ] || docker tag container $NAMESPACE/$PROJECT
 
 after_script:
   - docker images
 
 after_success:
-  - if [[ "${TRAVIS_REPO_SLUG}" =~ "${NAMESPACE}/" ]]; then
-      docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-      docker push $NAMESPACE/$PROJECT:$tag;
-    fi
+  # - if [[ "${TRAVIS_REPO_SLUG}" =~ "${NAMESPACE}/" ]]; then
+  #     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  #     docker push $NAMESPACE/$PROJECT:$tag;
+  #     docker push $NAMESPACE/$PROJECT:latest;
+  #   fi
