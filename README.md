@@ -1,4 +1,4 @@
-[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/dennybaa/spark) [![Build Status](https://travis-ci.org/dennybaa/docker-spark.svg?branch=master)](https://travis-ci.org/dennybaa/docker-spark)
+[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/actionml/spark) [![Build Status](https://travis-ci.org/actionml/docker-spark.svg?branch=master)](https://travis-ci.org/actionml/docker-spark)
 
 # Docker container for spark (standalone cluster)
 
@@ -10,15 +10,15 @@ To start master, workers or shell (on the same docker host),  you can invoke the
 
 ```
 # Spawn master
-docker run -d --name spark-master dennybaa/spark master
+docker run -d --name spark-master actionml/spark master
 master_ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' spark-master)
 
 # Spawn workers
-docker run -d --name spark-worker0 dennybaa/spark worker spark://$master_ip:7077
-docker run -d --name spark-worker1 dennybaa/spark worker spark://$master_ip:7077
+docker run -d --name spark-worker0 actionml/spark worker spark://$master_ip:7077
+docker run -d --name spark-worker1 actionml/spark worker spark://$master_ip:7077
 
 # Spawn shell
-docker run --rm -it dennybaa/spark shell --master spark://$master_ip:7077
+docker run --rm -it actionml/spark shell --master spark://$master_ip:7077
 ```
 
 ## Configuration
@@ -37,7 +37,7 @@ Details about standalone configuration mode can be found in the **[documentation
 Spark master command line usage:
 
 ```
-$ docker run --rm -it dennybaa/docker-spark master --help
+$ docker run --rm -it actionml/docker-spark master --help
 Usage: Master [options]
 
 Options:
@@ -56,7 +56,7 @@ For the list of available master environment options and additional details plea
 CLI usage:
 
 ```
-$ docker run --rm -it dennybaa/docker-spark worker --help
+$ docker run --rm -it actionml/docker-spark worker --help
 Usage: Worker [options] <master>
 
 Master must be a URL of the form spark://hostname:port
@@ -80,3 +80,7 @@ Mind that *SPARK_WORKER_INSTANCES* is not applicable to container, if you need t
 ### Other
 
 If you are planning to use spark shell, it's advised to look at [Zeppelin](https://zeppelin.incubator.apache.org/), it could be used instead of spark shell for working with data. It has pleasant GUI and IPython like functionality.
+
+# Authors
+
+ - Denis Baryshev (<dennybaa@gmail.com>)
