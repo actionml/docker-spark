@@ -38,6 +38,7 @@ shell)
     ${SPARK_HOME}/bin/spark-shell $default_opts $@
   ;;
 *)
-    $@
+    cmdline="$@"
+    exec ${cmdline:-/bin/bash}
   ;;
 esac
