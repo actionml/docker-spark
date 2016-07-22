@@ -32,8 +32,12 @@ after_script:
   - docker images
 
 after_success:
-  # - if [[ "${TRAVIS_REPO_SLUG}" =~ "${NAMESPACE}/" ]]; then
-  #     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-  #     docker push $NAMESPACE/$PROJECT:$tag;
-  #     docker push $NAMESPACE/$PROJECT:latest;
-  #   fi
+  - |
+      if [[ "${TRAVIS_REPO_SLUG}" =~ "${NAMESPACE}/" ]]; then
+        docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        # Get list of newly tagged images and push them
+        updated=$(docker images | grep "^$NAMESPACE/$PROJECT" | tr -s '[:space:]' | cut -f1,2 -d' ' | sed 's/ /:/')
+        for image in $updated; do
+          docker push $image
+        done
+      fi
