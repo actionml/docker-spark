@@ -10,16 +10,17 @@ LABEL vendor=ActionML \
       version_tags="[\"1.6\",\"1.6.2\"]"
 
 # Update alpine and install required tools
-RUN apk add --update --no-cache bash curl gnupg
+RUN echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \ 
+    apk add --update --no-cache bash curl gnupg shadow@community
 
 # Get gosu
-RUN curl -sSL -o /usr/local/bin/gosu && chmod 755 /usr/local/bin/gosu \
-        https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
+RUN curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
+         -o /usr/local/bin/gosu && chmod 755 /usr/local/bin/gosu \
     && curl -sSL -o /tmp/gosu.asc https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64.asc \
     && export GNUPGHOME=/tmp \
     && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
     && gpg --batch --verify /tmp/gosu.asc /usr/local/bin/gosu \
-    && rm -r /tmp/*
+    && rm -r /tmp/* && apk del gnupg
 
 # Fetch and unpack spark dist
 RUN curl -L http://www.us.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.6.tgz \
