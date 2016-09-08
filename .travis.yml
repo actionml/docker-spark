@@ -5,39 +5,33 @@ env:
   global:
     - PROJECT=spark
     - NAMESPACE=actionml
+    - PUSH_NAMESPACES=actionml
 
 install:
+  - curl -sSL https://github.com/stackfeed/ci-scripts/raw/master/install.sh | sh -s
   - git clone https://github.com/docker-library/official-images.git ~/official-images
 
 before_script:
-  # Set container variant name which defines tag name (aka container:version-variant)
-  - "[ ${TRAVIS_BRANCH} == master ] || export variant=${TRAVIS_BRANCH}"
+  - |
+      export PATH=$PATH:~/ci-scripts
+      [ ${TRAVIS_BRANCH} == master ] || export variant=${TRAVIS_BRANCH}
 
 script:
-  - docker build -t container .
-  - ~/official-images/test/run.sh container
-  # Fetch versions from label metadata
-  - export versions=$(docker inspect -f "{{.Config.Labels.version_tags}}" container | sed -r 's/"|\[|\]//g' | sed 's/,/ /g')
-  - |
-      # Create tags from the list
-      for version in $versions; do
-        tag=${version}-${variant}
-        tag=${tag%-}
-        docker tag container $NAMESPACE/$PROJECT:${tag}
-      done
-      # Tag latest (on master branch)
-      [ ! -z "$variant" ] || docker tag container $NAMESPACE/$PROJECT
-
-after_script:
-  - docker images
+  - docker-build -v "${variant}" $NAMESPACE/$PROJECT .
+  - ~/official-images/test/run.sh $(docker images -q | head -n1)
 
 after_success:
   - |
-      if [[ "${TRAVIS_REPO_SLUG}" =~ "${NAMESPACE}/" ]]; then
-        docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        # Get list of newly tagged images and push them
-        updated=$(docker images | grep "^$NAMESPACE/$PROJECT" | tr -s '[:space:]' | cut -f1,2 -d' ' | sed 's/ /:/')
-        for image in $updated; do
-          docker push $image
-        done
-      fi
+    # Check if not PR and namespace (org or user) is in the push list PUSH_NAMESPACES.
+    [ "${TRAVIS_PULL_REQUEST}" = "false" ] && ( echo "${PUSH_NAMESPACES}" | grep -qw "${TRAVIS_REPO_SLUG%/*}" )
+    [ $? -eq 0 ] || exit 0
+
+    # List of newly created images
+    export images=$(docker images | grep "^$NAMESPACE/$PROJECT" | tr -s '[:space:]' | cut -f1,2 -d' ' | sed 's/ /:/')
+
+    # Push to docker when DEPLOY is true
+    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    for image in $images; do docker push $image; done
+
+after_script:
+  - docker images
