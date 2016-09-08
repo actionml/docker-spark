@@ -11,7 +11,7 @@ chown_volumes() {
   paths="/usr/local/spark/work"
   mkdir -p ${paths}
   chmod 1777 /tmp
-  chown spark:hadoop ${paths}
+  chown aml:hadoop ${paths}
 }
 
 
@@ -41,12 +41,12 @@ master|worker)
     fi
 
     echo "spark-class invocation arguments: $default_opts $@"
-    exec gosu spark:hadoop ${SPARK_HOME}/bin/spark-class $CLASS $default_opts $@
+    exec gosu aml:hadoop ${SPARK_HOME}/bin/spark-class $CLASS $default_opts $@
   ;;
 shell)
     shift
     echo "spark-shell invocation arguments: $default_opts $@"
-    exec gosu spark:hadoop ${SPARK_HOME}/bin/spark-shell $default_opts $@
+    exec gosu aml:hadoop ${SPARK_HOME}/bin/spark-shell $default_opts $@
   ;;
 *)
     cmdline="$@"

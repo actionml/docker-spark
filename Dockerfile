@@ -4,7 +4,7 @@ MAINTAINER Denis Baryshev <dennybaa@gmail.com>
 ENV GOSU_VERSION 1.9
 ENV SPARK_VERSION 1.6.2
 ENV SPARK_HOME /usr/local/spark
-ENV SPARK_USER spark
+ENV SPARK_USER aml
 
 LABEL vendor=ActionML \
       version_tags="[\"1.6\",\"1.6.2\"]"
@@ -29,8 +29,8 @@ RUN curl -L http://www.us.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${S
 
 # Create users (to go "non-root") and set directory permissions
 RUN useradd -mU -d /home/hadoop hadoop && passwd -d hadoop && \
-    useradd -mU -d /home/spark -G hadoop spark && passwd -d spark && \
-    chown -R spark:hadoop ${SPARK_HOME}
+    useradd -mU -d /home/aml -G hadoop aml && passwd -d aml && \
+    chown -R aml:hadoop ${SPARK_HOME}
 
 ADD entrypoint.sh spark-defaults.conf /
 
