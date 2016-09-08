@@ -8,8 +8,9 @@ cli_bind_address() {
 
 # Setup volumes
 chown_volumes() {
-  paths="/usr/local/spark/work /tmp"
+  paths="/usr/local/spark/work"
   mkdir -p ${paths}
+  chmod 1777 /tmp
   chown spark:hadoop ${paths}
 }
 
