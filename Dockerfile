@@ -11,7 +11,7 @@ LABEL vendor=ActionML \
 
 # Update alpine and install required tools
 RUN echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \ 
-    apk add --update --no-cache bash curl gnupg shadow@community
+    apk add --update --no-cache bash curl gnupg snappy shadow@community
 
 # Get gosu
 RUN curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
