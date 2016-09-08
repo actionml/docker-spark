@@ -6,6 +6,13 @@ cli_bind_address() {
   echo "$*" | grep -qE -- "--host\b|-h\b|--ip\b|-i\b"
 }
 
+# Setup volumes
+chown_volumes() {
+  paths="/usr/local/spark/work /usr/local/spark/tmp"
+  mkdir -p ${paths}
+  chown spark:hadoop ${paths}
+}
+
 
 # Set instance type master/worker/shell
 default_opts="--properties-file /spark-defaults.conf"
@@ -15,6 +22,9 @@ default_opts="--properties-file /spark-defaults.conf"
 . "${SPARK_HOME}/sbin/spark-config.sh"
 . "${SPARK_HOME}/bin/load-spark-env.sh"
 
+
+# Set proper volume permissions
+chown_volumes
 
 # Execute spark service or given arguments (for ex. can enter bash)
 case $1 in
