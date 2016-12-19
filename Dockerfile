@@ -13,7 +13,7 @@ LABEL vendor=ActionML \
 
 # Update alpine and install required tools
 RUN echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \ 
-    apk add --update --no-cache bash curl gnupg snappy shadow@community
+    apk add --update --no-cache bash curl gnupg shadow@community
 
 # Glibc compatibility
 RUN curl -sSL https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/sgerrand.rsa.pub \
@@ -46,9 +46,9 @@ RUN useradd -mU -d /home/hadoop hadoop && passwd -d hadoop && \
 
 ADD entrypoint.sh spark-defaults.conf /
 
-# Some env vars can be passed to alter the behaviour, for additional
-# details please visit https://spark.apache.org/docs/latest/spark-standalone.html
-
+## Scratch directories can be passed as volumes
+# SPARK_HOME/work directory used on worker for scratch space and job output logs.
+# /tmp - Directory to use for "scratch" space in Spark, including map output files and RDDs that get stored on disk.
 VOLUME [ "/usr/local/spark/work", "/tmp" ]
 
 EXPOSE 8080 8081 6066 7077 4040 7001 7002 7003 7004 7005 7006

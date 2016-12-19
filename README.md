@@ -81,6 +81,15 @@ Mind that *SPARK_WORKER_INSTANCES* is not applicable to container, if you need t
 
 If you are planning to use spark shell, it's advised to look at [Zeppelin](https://zeppelin.incubator.apache.org/), it could be used instead of spark shell for working with data. It has pleasant GUI and IPython like functionality.
 
+# Important notes
+
+## Spark scratch volumes
+
+Mind that in production use the following directories *must* be passed to spark containers as volumes.
+
+* `SPARK_HOME/work` directory used on worker for scratch space and job output logs.
+*  `/tmp` - directory to use for "scratch" space in Spark, including map output files and RDDs that get stored on disk.
+
 # Authors
 
  - Denis Baryshev (<dennybaa@gmail.com>)

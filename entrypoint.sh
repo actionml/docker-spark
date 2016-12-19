@@ -1,33 +1,33 @@
 #!/bin/bash
 set -e
 
+## Defaults
+#
+: ${SPARK_HOME:?must be set!}
+default_opts="--properties-file /spark-defaults.conf"
+
+
 # Check if CLI args list containes bind address key.
 cli_bind_address() {
   echo "$*" | grep -qE -- "--host\b|-h\b|--ip\b|-i\b"
 }
 
-# Setup volumes
-chown_volumes() {
-  paths="/usr/local/spark/work"
-  mkdir -p ${paths}
+# Set permissions on the scratch volumes
+scratch_volumes_permissions() {
+  mkdir $SPARK_HOME/work && chown aml:hadoop $SPARK_HOME/work
   chmod 1777 /tmp
-  chown aml:hadoop ${paths}
 }
 
 
-# Set instance type master/worker/shell
-default_opts="--properties-file /spark-defaults.conf"
-
-# Basic configs sourcing
-: ${SPARK_HOME:?must be set!}
-. "${SPARK_HOME}/sbin/spark-config.sh"
-. "${SPARK_HOME}/bin/load-spark-env.sh"
+## Configuration sourcing
+. $SPARK_HOME/sbin/spark-config.sh
+. $SPARK_HOME/bin/load-spark-env.sh
 
 
-# Set proper volume permissions
-chown_volumes
+## Entrypoint
 
-# Execute spark service or given arguments (for ex. can enter bash)
+scratch_volumes_permissions
+
 case $1 in
 master|worker)
     instance=$1
