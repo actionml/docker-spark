@@ -14,7 +14,7 @@ cli_bind_address() {
 
 # Set permissions on the scratch volumes
 scratch_volumes_permissions() {
-  mkdir $SPARK_HOME/work && chown aml:hadoop $SPARK_HOME/work
+  mkdir -p $SPARK_HOME/work && chown $SPARK_USER:hadoop $SPARK_HOME/work
   chmod 1777 /tmp
 }
 
@@ -40,13 +40,17 @@ master|worker)
       default_opts="${default_opts} --host ${bind_address}"
     fi
 
-    echo "spark-class invocation arguments: $default_opts $@"
-    exec gosu aml:hadoop ${SPARK_HOME}/bin/spark-class $CLASS $default_opts $@
+    echo "==> spark-class invocation arguments: $CLASS $default_opts $@"
+
+    cd /tmp
+    exec gosu $SPARK_USER:hadoop $SPARK_HOME/bin/spark-class $CLASS $default_opts $@
   ;;
 shell)
     shift
-    echo "spark-shell invocation arguments: $default_opts $@"
-    exec gosu aml:hadoop ${SPARK_HOME}/bin/spark-shell $default_opts $@
+    echo "==> spark-shell invocation arguments: $default_opts $@"
+
+    cd /tmp
+    exec gosu $SPARK_USER:hadoop $SPARK_HOME/bin/spark-shell $default_opts $@
   ;;
 *)
     cmdline="$@"

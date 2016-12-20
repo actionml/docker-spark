@@ -41,8 +41,8 @@ RUN curl -L http://www.us.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${S
 
 # Create users (to go "non-root") and set directory permissions
 RUN useradd -mU -d /home/hadoop hadoop && passwd -d hadoop && \
-    useradd -mU -d /home/aml -G hadoop aml && passwd -d aml && \
-    chown -R aml:hadoop ${SPARK_HOME}
+    useradd -mU -d /home/$SPARK_USER -G hadoop $SPARK_USER && passwd -d $SPARK_USER && \
+    chown -R $SPARK_USER:hadoop $SPARK_HOME
 
 ADD entrypoint.sh spark-defaults.conf /
 

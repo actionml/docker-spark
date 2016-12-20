@@ -90,6 +90,10 @@ Mind that in production use the following directories *must* be passed to spark 
 * `SPARK_HOME/work` directory used on worker for scratch space and job output logs.
 *  `/tmp` - directory to use for "scratch" space in Spark, including map output files and RDDs that get stored on disk.
 
+## JDBC metastore (for Hive)
+
+Default configuration uses Derby as JDBC metastore_db which is created relatively to the startup path. So to make container (namely spark-shell) to start right change to /tmp.
+
 # Authors
 
  - Denis Baryshev (<dennybaa@gmail.com>)
