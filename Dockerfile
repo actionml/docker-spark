@@ -22,6 +22,7 @@ RUN curl -sSL https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.2
     curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-$GLIBC_COMPAT.apk && \
     curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-bin-$GLIBC_COMPAT.apk && \
     apk add --no-cache glibc-$GLIBC_COMPAT.apk glibc-bin-$GLIBC_COMPAT.apk glibc-i18n-$GLIBC_COMPAT.apk && \
+    mv /lib64/ld-linux-x86-64.so.2 /lib && /usr/glibc-compat/sbin/ldconfig && \
     echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
       rm /etc/apk/keys/sgerrand.rsa.pub glibc-*.apk
 
