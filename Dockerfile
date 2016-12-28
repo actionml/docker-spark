@@ -2,7 +2,7 @@ FROM openjdk:8-jre-alpine
 MAINTAINER Denis Baryshev <dennybaa@gmail.com>
 
 ENV GOSU_VERSION 1.9
-ENV SPARK_VERSION 1.6.2
+ENV SPARK_VERSION 1.6.3
 ENV SPARK_HOME /usr/local/spark
 ENV SPARK_USER aml
 ENV GLIBC_COMPAT 2.23-r3
