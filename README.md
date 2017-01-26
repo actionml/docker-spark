@@ -4,12 +4,6 @@
 
 ## Starting up
 
-First connect to the docker daemon
-
-```
-export DOCKER_HOST=:3375
-```
-
 This repository contains a set of scripts and configuration files to run a [Apache Spark](https://spark.apache.org/) standalone cluster from [Docker](https://www.docker.io/) container.
 
 To start master, workers or shell (on the same docker host),  you can invoke the following commands:
