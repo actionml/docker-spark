@@ -5,7 +5,7 @@ ENV GOSU_VERSION 1.9
 ENV SPARK_VERSION 1.6.3
 ENV SPARK_HOME /usr/local/spark
 ENV SPARK_USER aml
-ENV GLIBC_COMPAT 2.23-r3
+ENV GLIBC_APKVER 2.24-r0
 ENV LANG=en_US.UTF-8
 
 LABEL vendor=ActionML \
@@ -16,15 +16,14 @@ RUN echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/ap
     apk add --update --no-cache bash curl gnupg shadow@community
 
 # Glibc compatibility
-RUN curl -sSL https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/sgerrand.rsa.pub \
-            -o /etc/apk/keys/sgerrand.rsa.pub && \
-    curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-i18n-$GLIBC_COMPAT.apk && \
-    curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-$GLIBC_COMPAT.apk && \
-    curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-bin-$GLIBC_COMPAT.apk && \
-    apk add --no-cache glibc-$GLIBC_COMPAT.apk glibc-bin-$GLIBC_COMPAT.apk glibc-i18n-$GLIBC_COMPAT.apk && \
-    mv /lib64/ld-linux-x86-64.so.2 /lib && /usr/glibc-compat/sbin/ldconfig && \
+RUN curl -sSL https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/stackfeed.rsa.pub \
+            -o /etc/apk/keys/stackfeed.rsa.pub && \
+    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-i18n-$GLIBC_APKVER.apk && \
+    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-$GLIBC_APKVER.apk && \
+    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-bin-$GLIBC_APKVER.apk && \
+    apk add --no-cache glibc-$GLIBC_APKVER.apk glibc-bin-$GLIBC_APKVER.apk glibc-i18n-$GLIBC_APKVER.apk && \
     echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
-      rm /etc/apk/keys/sgerrand.rsa.pub glibc-*.apk
+      rm /etc/apk/keys/stackfeed.rsa.pub glibc-*.apk
 
 # Get gosu
 RUN curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
