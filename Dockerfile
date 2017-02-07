@@ -1,17 +1,29 @@
-FROM java:8-jre-alpine
+FROM openjdk:8-jre-alpine
 MAINTAINER Denis Baryshev <dennybaa@gmail.com>
 
 ENV GOSU_VERSION 1.9
-ENV SPARK_VERSION 1.6.2
+ENV SPARK_VERSION 1.6.3
 ENV SPARK_HOME /usr/local/spark
 ENV SPARK_USER aml
+ENV GLIBC_APKVER 2.24-r0
+ENV LANG=en_US.UTF-8
 
 LABEL vendor=ActionML \
-      version_tags="[\"1.6\",\"1.6.2\"]"
+      version_tags="[\"1.6\",\"1.6.3\"]"
 
 # Update alpine and install required tools
 RUN echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \ 
-    apk add --update --no-cache bash curl gnupg snappy shadow@community
+    apk add --update --no-cache bash curl gnupg shadow@community
+
+# Glibc compatibility
+RUN curl -sSL https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/stackfeed.rsa.pub \
+            -o /etc/apk/keys/stackfeed.rsa.pub && \
+    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-i18n-$GLIBC_APKVER.apk && \
+    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-$GLIBC_APKVER.apk && \
+    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-bin-$GLIBC_APKVER.apk && \
+    apk add --no-cache glibc-$GLIBC_APKVER.apk glibc-bin-$GLIBC_APKVER.apk glibc-i18n-$GLIBC_APKVER.apk && \
+    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
+      rm /etc/apk/keys/stackfeed.rsa.pub glibc-*.apk
 
 # Get gosu
 RUN curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
@@ -29,14 +41,14 @@ RUN curl -L http://www.us.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${S
 
 # Create users (to go "non-root") and set directory permissions
 RUN useradd -mU -d /home/hadoop hadoop && passwd -d hadoop && \
-    useradd -mU -d /home/aml -G hadoop aml && passwd -d aml && \
-    chown -R aml:hadoop ${SPARK_HOME}
+    useradd -mU -d /home/$SPARK_USER -G hadoop $SPARK_USER && passwd -d $SPARK_USER && \
+    chown -R $SPARK_USER:hadoop $SPARK_HOME
 
 ADD entrypoint.sh spark-defaults.conf /
 
-# Some env vars can be passed to alter the behaviour, for additional
-# details please visit https://spark.apache.org/docs/latest/spark-standalone.html
-
+## Scratch directories can be passed as volumes
+# SPARK_HOME/work directory used on worker for scratch space and job output logs.
+# /tmp - Directory to use for "scratch" space in Spark, including map output files and RDDs that get stored on disk.
 VOLUME [ "/usr/local/spark/work", "/tmp" ]
 
 EXPOSE 8080 8081 6066 7077 4040 7001 7002 7003 7004 7005 7006

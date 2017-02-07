@@ -1,14 +1,8 @@
-[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/actionml/spark) [![Build Status](https://travis-ci.org/actionml/docker-spark.svg?branch=master)](https://travis-ci.org/actionml/docker-spark)
+[![Build Status](https://travis-ci.org/actionml/docker-spark.svg?branch=master)](https://travis-ci.org/actionml/docker-spark)  [![Go to Docker Hub](https://img.shields.io/badge/Docker%20Hub-%E2%86%92-blue.svg)](https://hub.docker.com/r/actionml/spark/) [![](https://images.microbadger.com/badges/version/actionml/spark.svg)](https://microbadger.com/images/actionml/spark) [![](https://images.microbadger.com/badges/image/actionml/spark.svg)](https://microbadger.com/images/actionml/spark)
 
 # Docker container for spark (standalone cluster)
 
 ## Starting up
-
-First connect to the docker daemon
-
-```
-export DOCKER_HOST=:3375
-```
 
 This repository contains a set of scripts and configuration files to run a [Apache Spark](https://spark.apache.org/) standalone cluster from [Docker](https://www.docker.io/) container.
 
@@ -86,6 +80,19 @@ Mind that *SPARK_WORKER_INSTANCES* is not applicable to container, if you need t
 ### Other
 
 If you are planning to use spark shell, it's advised to look at [Zeppelin](https://zeppelin.incubator.apache.org/), it could be used instead of spark shell for working with data. It has pleasant GUI and IPython like functionality.
+
+# Important notes
+
+## Spark scratch volumes
+
+Mind that in production use the following directories *must* be passed to spark containers as volumes.
+
+* `SPARK_HOME/work` directory used on worker for scratch space and job output logs.
+*  `/tmp` - directory to use for "scratch" space in Spark, including map output files and RDDs that get stored on disk.
+
+## JDBC metastore (for Hive)
+
+Default configuration uses Derby as JDBC metastore_db which is created relatively to the startup path. So to make container (namely spark-shell) to start right change to /tmp.
 
 # Authors
 

@@ -1,33 +1,33 @@
 #!/bin/bash
 set -e
 
+## Defaults
+#
+: ${SPARK_HOME:?must be set!}
+default_opts="--properties-file /spark-defaults.conf"
+
+
 # Check if CLI args list containes bind address key.
 cli_bind_address() {
   echo "$*" | grep -qE -- "--host\b|-h\b|--ip\b|-i\b"
 }
 
-# Setup volumes
-chown_volumes() {
-  paths="/usr/local/spark/work"
-  mkdir -p ${paths}
+# Set permissions on the scratch volumes
+scratch_volumes_permissions() {
+  mkdir -p $SPARK_HOME/work && chown $SPARK_USER:hadoop $SPARK_HOME/work
   chmod 1777 /tmp
-  chown aml:hadoop ${paths}
 }
 
 
-# Set instance type master/worker/shell
-default_opts="--properties-file /spark-defaults.conf"
-
-# Basic configs sourcing
-: ${SPARK_HOME:?must be set!}
-. "${SPARK_HOME}/sbin/spark-config.sh"
-. "${SPARK_HOME}/bin/load-spark-env.sh"
+## Configuration sourcing
+. $SPARK_HOME/sbin/spark-config.sh
+. $SPARK_HOME/bin/load-spark-env.sh
 
 
-# Set proper volume permissions
-chown_volumes
+## Entrypoint
 
-# Execute spark service or given arguments (for ex. can enter bash)
+scratch_volumes_permissions
+
 case $1 in
 master|worker)
     instance=$1
@@ -40,13 +40,17 @@ master|worker)
       default_opts="${default_opts} --host ${bind_address}"
     fi
 
-    echo "spark-class invocation arguments: $default_opts $@"
-    exec gosu aml:hadoop ${SPARK_HOME}/bin/spark-class $CLASS $default_opts $@
+    echo "==> spark-class invocation arguments: $CLASS $default_opts $@"
+
+    cd /tmp
+    exec gosu $SPARK_USER:hadoop $SPARK_HOME/bin/spark-class $CLASS $default_opts $@
   ;;
 shell)
     shift
-    echo "spark-shell invocation arguments: $default_opts $@"
-    exec gosu aml:hadoop ${SPARK_HOME}/bin/spark-shell $default_opts $@
+    echo "==> spark-shell invocation arguments: $default_opts $@"
+
+    cd /tmp
+    exec gosu $SPARK_USER:hadoop $SPARK_HOME/bin/spark-shell $default_opts $@
   ;;
 *)
     cmdline="$@"

@@ -35,3 +35,6 @@ after_success:
 
 after_script:
   - docker images
+
+notifications:
+  webhooks: https://hooks.microbadger.com/images/actionml/spark/${MICROBADGER_TOKEN}
