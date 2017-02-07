@@ -1,4 +1,4 @@
-[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/actionml/spark) [![Build Status](https://travis-ci.org/actionml/docker-spark.svg?branch=master)](https://travis-ci.org/actionml/docker-spark)
+[![Build Status](https://travis-ci.org/actionml/docker-spark.svg?branch=master)](https://travis-ci.org/actionml/docker-spark)  [![Go to Docker Hub](https://img.shields.io/badge/Docker%20Hub-%E2%86%92-blue.svg)](https://hub.docker.com/r/actionml/spark/) [![](https://images.microbadger.com/badges/version/actionml/spark.svg)](https://microbadger.com/images/actionml/spark) [![](https://images.microbadger.com/badges/image/actionml/spark.svg)](https://microbadger.com/images/actionml/spark)
 
 # Docker container for spark (standalone cluster)
 
