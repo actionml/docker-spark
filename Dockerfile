@@ -1,29 +1,28 @@
-FROM openjdk:8-jre-alpine
-MAINTAINER Denis Baryshev <dennybaa@gmail.com>
+FROM java:8-jre-alpine
 
-ENV GOSU_VERSION 1.9
-ENV SPARK_VERSION 1.6.3
+ENV GOSU_VERSION 1.10
+ENV SPARK_VERSION 2.1.2
 ENV SPARK_HOME /usr/local/spark
 ENV SPARK_USER aml
-ENV GLIBC_APKVER 2.24-r0
+ARG GLIBC_APKVER=2.27-r0
 ENV LANG=en_US.UTF-8
 
 LABEL vendor=ActionML \
-      version_tags="[\"1.6\",\"1.6.3\"]"
+      version_tags="[\"2.1\",\"2.1.2\"]"
 
 # Update alpine and install required tools
 RUN echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \ 
     apk add --update --no-cache bash curl gnupg shadow@community
 
 # Glibc compatibility
-RUN curl -sSL https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/stackfeed.rsa.pub \
-            -o /etc/apk/keys/stackfeed.rsa.pub && \
-    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-i18n-$GLIBC_APKVER.apk && \
-    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-$GLIBC_APKVER.apk && \
-    curl -sSLO https://github.com/stackfeed/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-bin-$GLIBC_APKVER.apk && \
+RUN curl -sSL https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/sgerrand.rsa.pub \
+            -o /etc/apk/keys/sgerrand.rsa.pub && \
+    curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-i18n-$GLIBC_APKVER.apk && \
+    curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-$GLIBC_APKVER.apk && \
+    curl -sSLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/glibc-bin-$GLIBC_APKVER.apk && \
     apk add --no-cache glibc-$GLIBC_APKVER.apk glibc-bin-$GLIBC_APKVER.apk glibc-i18n-$GLIBC_APKVER.apk && \
     echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
-      rm /etc/apk/keys/stackfeed.rsa.pub glibc-*.apk
+      rm /etc/apk/keys/sgerrand.rsa.pub glibc-*.apk
 
 # Get gosu
 RUN curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
