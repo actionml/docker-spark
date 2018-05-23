@@ -12,7 +12,7 @@ LABEL vendor=ActionML \
 
 # Update alpine and install required tools
 RUN echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \ 
-    apk add --update --no-cache bash curl gnupg shadow@community
+    apk add --update --no-cache bash curl shadow@community
 
 # Glibc compatibility
 RUN curl -sSL https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_APKVER/sgerrand.rsa.pub \
@@ -25,13 +25,14 @@ RUN curl -sSL https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GL
       rm /etc/apk/keys/sgerrand.rsa.pub glibc-*.apk
 
 # Get gosu
-RUN curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
+RUN apk add --update --no-cache --virtual .deps gnupg && \
+    curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64 \
          -o /usr/local/bin/gosu && chmod 755 /usr/local/bin/gosu \
     && curl -sSL -o /tmp/gosu.asc https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64.asc \
     && export GNUPGHOME=/tmp \
     && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
     && gpg --batch --verify /tmp/gosu.asc /usr/local/bin/gosu \
-    && rm -r /tmp/* && apk del gnupg
+    && rm -r /tmp/* && apk del .deps
 
 # Fetch and unpack spark dist
 RUN curl -L http://www.us.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz \
