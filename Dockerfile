@@ -34,9 +34,9 @@ RUN curl -sSL https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gos
     && rm -r /tmp/* && apk del gnupg
 
 # Fetch and unpack spark dist
-RUN curl -L http://www.us.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.6.tgz \
+RUN curl -L http://www.us.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz \
       | tar -xzp -C /usr/local/ && \
-        ln -s spark-${SPARK_VERSION}-bin-hadoop2.6 ${SPARK_HOME}
+        ln -s spark-${SPARK_VERSION}-bin-hadoop2.7 ${SPARK_HOME}
 
 # Create users (to go "non-root") and set directory permissions
 RUN useradd -mU -d /home/hadoop hadoop && passwd -d hadoop && \
