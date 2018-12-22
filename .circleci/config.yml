@@ -1,0 +1,61 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: stackfeed/circle-shell
+    environment:
+      PROJECT: spark
+      NAMESPACE: actionml
+      PUSH_NAMESPACES: actionml
+      CONTINUOUS_INTEGRATION: "yes"
+      SPARK_PGP_KEYS: 12973FD0 FC8ED089
+
+    steps:
+      -
+        run:
+          name: Install ci-scripts
+          command: |
+            echo 'export PATH=$PATH:~/ci-scripts' >> $BASH_ENV
+            wget -qO - https://github.com/stackfeed/ci-scripts/raw/master/install.sh | sh -s -- -r v0.2
+      -
+        run:
+          name: Setup dependencies
+          command: |
+            latests=$(wget -qO - https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/master/.latests)
+            version=${CIRCLE_TAG#v}
+            [ -n "$version" ] || version=$(echo "${latests}" | cut -f1 -d' ')
+
+            printf 'export LATESTS=%s\n' ${latests} >> $BASH_ENV
+            printf 'export VERSION=%s\n' ${version} >> $BASH_ENV
+      -
+        setup_remote_docker
+      -
+        checkout
+      -
+        run:
+          name: Build docker image
+          command: |
+            docker-build -v $VERSION -l "$LATESTS" "$NAMESPACE/$PROJECT" \
+              --build-arg release=${CIRCLE_TAG:-build} \
+              --build-arg version=${VERSION%%-*} \
+                -f Dockerfile ./
+      -
+        run:
+          name: Publish docker image
+          command: |
+            # conditionaly skip pushes
+            ( echo "$PUSH_NAMESPACES" | grep -qw "${CIRCLE_PROJECT_USERNAME}" ) || exit 0
+            [ -n "${CIRCLE_TAG}" ] || exit 0
+
+            # push and update microbadger
+            docker-push -r "^$NAMESPACE/$PROJECT:?.*" && \
+            curl -XPOST "https://hooks.microbadger.com/images/${NAMESPACE}/${PROJECT}/${MICROBADGER_TOKEN}"
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v([0-9]+\.?)+.*/
