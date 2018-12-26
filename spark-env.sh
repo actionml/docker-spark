@@ -3,11 +3,12 @@
 #  For additional details refer to
 #     https://github.com/apache/spark/blob/master/conf/spark-env.sh.template
 
+## Viable options for the daemons started by the container in the standalone deploy mode
+#  Note: that other options might not make sense to pass, since they might control
+#        the bash invocation scenario.
 
 # - HADOOP_CONF_DIR, to point Spark towards Hadoop configuration files
 
-# Options for the daemons used in the standalone deploy mode
-# - SPARK_MASTER_HOST, to bind the master to a different IP address or hostname
 # - SPARK_MASTER_PORT / SPARK_MASTER_WEBUI_PORT, to use non-default ports for the master
 # - SPARK_MASTER_OPTS, to set config properties only for the master (e.g. "-Dx=y")
 # - SPARK_WORKER_CORES, to set the number of cores to use on this machine
