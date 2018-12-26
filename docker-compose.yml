@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  master:
+    image: actionml/spark:latest
+    command: master
+    ports:
+      - 8080:8080
+
+  worker:
+    image: actionml/spark:latest
+    command: worker spark://master:7077
+    depends_on:
+      - master
+    ports:
+      - 8081:8081
+    environment:
+      - SPARK_WORKER_MEMORY=1g
