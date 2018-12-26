@@ -4,56 +4,26 @@ set -e
 ## Defaults
 #
 : ${SPARK_HOME:?must be set!}
-default_opts="--properties-file /spark-defaults.conf"
 
+## Load spark-env.sh Spark environment configuration variables
+SPARK_CONF_DIR="${SPARK_CONF_DIR:-"${SPARK_HOME}/conf"}"
+[ ! -f ${SPARK_CONF_DIR}/spark-env.sh ] || . ${SPARK_CONF_DIR}/spark-env.sh
 
-# Check if CLI args list containes bind address key.
-cli_bind_address() {
-  echo "$*" | grep -qE -- "--host\b|-h\b|--ip\b|-i\b"
-}
-
-# Set permissions on the scratch volumes
-scratch_volumes_permissions() {
-  mkdir -p $SPARK_HOME/work && chown $SPARK_USER:hadoop $SPARK_HOME/work
-  chmod 1777 /tmp
-}
-
-
-## Configuration sourcing
-. $SPARK_HOME/sbin/spark-config.sh
-. $SPARK_HOME/bin/load-spark-env.sh
-
-
-## Entrypoint
-
-scratch_volumes_permissions
-
-case $1 in
+## Invocation shortcut commands
+#
+cmd=$1
+case $cmd in
 master|worker)
-    instance=$1
     shift
-    CLASS="org.apache.spark.deploy.$instance.${instance^}"
-
-    # Handle custom bind address set via ENV or CLI
-    eval bind_address=\$SPARK_${instance^^}_IP
-    if ( ! cli_bind_address $@ ) && [ ! -z $bind_address ] ; then
-      default_opts="${default_opts} --host ${bind_address}"
-    fi
-
-    echo "==> spark-class invocation arguments: $CLASS $default_opts $@"
-
-    cd /tmp
-    exec gosu $SPARK_USER:hadoop $SPARK_HOME/bin/spark-class $CLASS $default_opts $@
+    set -- ${SPARK_HOME}/bin/spark-class "org.apache.spark.deploy.${cmd}.${cmd^}" "$@"
+    exec /sbin/tini -- "$@" -i 0.0.0.0
   ;;
-shell)
+spark-shell|shell)
     shift
-    echo "==> spark-shell invocation arguments: $default_opts $@"
-
-    cd /tmp
-    exec gosu $SPARK_USER:hadoop $SPARK_HOME/bin/spark-shell $default_opts $@
+    exec /sbin/tini -- ${SPARK_HOME}/bin/spark-shell "$@"
   ;;
 *)
-    cmdline="$@"
-    exec ${cmdline:-/bin/bash}
+    # Run an arbitary command
+    [ -n "$*" ] && exec "$@" || exec /bin/bash
   ;;
 esac
