@@ -9,7 +9,7 @@ LABEL com.actionml.spark.vendor=ActionML \
       com.actionml.spark.release=$release
 
 ENV SPARK_HOME=/spark \
-    SPARK_PGP_KEYS="DB0B21A012973FD0 7C6C105FFC8ED089 FD8FFD4C3A0D5564"
+    SPARK_PGP_KEYS="6EC5F1052DF08FF4 7C6C105FFC8ED089 DCE4BFD807461E96"
 
 RUN adduser -Ds /bin/bash -h ${SPARK_HOME} spark && \
     apk add --no-cache bash tini libc6-compat linux-pam krb5 krb5-libs && \
