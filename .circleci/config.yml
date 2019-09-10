@@ -39,12 +39,12 @@ jobs:
 
             case "${CIRCLE_BRANCH}" in
               master|develop|devops)
-              docker image build -l "$LATESTS"\
+              docker image build -f Dockerfile \
                 --build-arg release=${CIRCLE_TAG:-build} \
                 --build-arg version=${VERSION%%-*} \
                 --build-arg GIT_HASH=$SHORT_GIT_HASH --build-arg DATE_BUILD=$DATE_BUILD \
-                --build-arg BRANCH=${CIRCLE_BRANCH}\
-                -f Dockerfile -t actionml/spark:latest ./
+                --build-arg BRANCH=${CIRCLE_BRANCH} \
+                -t actionml/spark:latest ./
               ;;
               *)
               ;;
