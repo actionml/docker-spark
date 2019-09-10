@@ -32,6 +32,11 @@ jobs:
         checkout
       -
         run:
+          name: Docker login
+          command: |
+            echo -n ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+      -
+        run:
           name: Build docker image
           command: |
             SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)
