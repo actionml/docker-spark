@@ -32,22 +32,65 @@ jobs:
         checkout
       -
         run:
+          name: Docker login
+          command: |
+            echo -n ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+      -
+        run:
           name: Build docker image
           command: |
-            docker-build -v $VERSION -l "$LATESTS" "$NAMESPACE/$PROJECT" \
-              --build-arg release=${CIRCLE_TAG:-build} \
-              --build-arg version=${VERSION%%-*} \
-                -f Dockerfile ./
+            SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)
+            DATE_BUILD=$(date +'%Y-%m-%d')
+
+            case "${CIRCLE_BRANCH}" in
+              master|develop|devops)
+              docker image build -f Dockerfile \
+                --build-arg release=${CIRCLE_TAG:-build} \
+                --build-arg version=${VERSION%%-*} \
+                --build-arg GIT_HASH=$SHORT_GIT_HASH --build-arg DATE_BUILD=$DATE_BUILD \
+                --build-arg BRANCH=${CIRCLE_BRANCH} \
+                -t actionml/spark:latest ./
+              ;;
+              *)
+              ;;
+            esac
       -
         run:
           name: Publish docker image
           command: |
-            # conditionaly skip pushes
-            ( echo "$PUSH_NAMESPACES" | grep -qw "${CIRCLE_PROJECT_USERNAME}" ) || exit 0
-            [ -n "${CIRCLE_TAG}" ] || exit 0
-            # push and update microbadger
-            docker-push -r "^$NAMESPACE/$PROJECT:?.*" && \
-            curl -XPOST "https://hooks.microbadger.com/images/${NAMESPACE}/${PROJECT}/${MICROBADGER_TOKEN}"
+            SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)
+            DATE_BUILD=$(date +'%Y-%m-%d')
+            
+            case "${CIRCLE_BRANCH}" in
+              "master")
+                docker image push actionml/spark:latest
+                curl -XPOST "https://hooks.microbadger.com/images/${NAMESPACE}/${PROJECT}/${MICROBADGER_TOKEN}"
+              ;;
+              "develop")
+                
+                docker tag actionml/spark:latest actionml/spark:${CIRCLE_BRANCH}
+                docker image push actionml/spark:${CIRCLE_BRANCH}
+                
+                docker tag actionml/spark:latest actionml/spark:${CIRCLE_BRANCH}-$SHORT_GIT_HASH
+                docker image push actionml/spark:${CIRCLE_BRANCH}-$SHORT_GIT_HASH
+                
+                docker tag actionml/spark:latest actionml/spark:${CIRCLE_BRANCH}-$DATE_BUILD
+                docker image push actionml/spark:${CIRCLE_BRANCH}-$DATE_BUILD
+              ;;
+              "devops")
+                docker tag actionml/spark:latest actionml/spark:${CIRCLE_BRANCH}
+                docker image push actionml/spark:${CIRCLE_BRANCH}
+                
+                docker tag actionml/spark:latest actionml/spark:${CIRCLE_BRANCH}-$SHORT_GIT_HASH
+                docker image push actionml/spark:${CIRCLE_BRANCH}-$SHORT_GIT_HASH
+                
+                docker tag actionml/spark:latest actionml/spark:${CIRCLE_BRANCH}-$DATE_BUILD
+                docker image push actionml/spark:${CIRCLE_BRANCH}-$DATE_BUILD
+              ;;
+              *)
+              ;;
+            esac
+
 workflows:
   version: 2
   default:

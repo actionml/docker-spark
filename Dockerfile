@@ -4,12 +4,21 @@ FROM openjdk:8-alpine3.8
 
 ARG version
 ARG release
+ARG GIT_HASH
+ARG DATE_BUILD
+ARG BRANCH
+
+
 LABEL com.actionml.spark.vendor=ActionML \
       com.actionml.spark.version=$version \
       com.actionml.spark.release=$release
 
+ENV BRANCH=${BRANCH}
+ENV GIT_HASH=${GIT_HASH}
+ENV DATE_BUILD=${DATE_BUILD}
+
 ENV SPARK_HOME=/spark \
-    SPARK_PGP_KEYS="DB0B21A012973FD0 7C6C105FFC8ED089 FD8FFD4C3A0D5564"
+    SPARK_PGP_KEYS="6EC5F1052DF08FF4 DCE4BFD807461E96"
 
 RUN adduser -Ds /bin/bash -h ${SPARK_HOME} spark && \
     apk add --no-cache bash tini libc6-compat linux-pam krb5 krb5-libs && \
