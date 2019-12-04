@@ -8,7 +8,6 @@ ARG GIT_HASH
 ARG DATE_BUILD
 ARG BRANCH
 
-
 LABEL com.actionml.spark.vendor=ActionML \
       com.actionml.spark.version=$version \
       com.actionml.spark.release=$release
