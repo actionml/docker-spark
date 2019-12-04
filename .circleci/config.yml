@@ -44,7 +44,7 @@ jobs:
 
             case "${CIRCLE_BRANCH}" in
               master|develop|devops)
-              docker build -t actionml/spark:latest \
+              docker build -t actionml/spark:latest --no-cache\
                 --build-arg release=${CIRCLE_TAG:-build} \
                 --build-arg version=${VERSION%%-*} \
                 --build-arg GIT_HASH=$SHORT_GIT_HASH --build-arg DATE_BUILD=$DATE_BUILD \
