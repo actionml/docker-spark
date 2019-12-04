@@ -22,7 +22,7 @@ jobs:
           name: Setup dependencies
           command: |
             latests=$(wget -qO - https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/master/.latests)
-            version=$(cat latests)
+            version=2.3.3
             # version=${CIRCLE_TAG#v}
             [ -n "$version" ] || version=$(echo "${latests}" | cut -f1 -d' ')
             printf 'export LATESTS=%s\n' ${latests} >> $BASH_ENV
