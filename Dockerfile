@@ -48,5 +48,3 @@ RUN chmod +x /harnesstool/setHarnessHost.sh && echo "* * * * * /bin/bash /harnes
 WORKDIR ${SPARK_HOME}/work
 ENTRYPOINT [ "/entrypoint.sh" ]
 
-# Specify the User that the actual main process will run as
-# USER spark:spark
