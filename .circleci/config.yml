@@ -48,13 +48,6 @@ jobs:
             GIT_HASH_TEST=$SHORT_GIT_HASH
             DATE_BUILD_TEST=$DATE_BUILD
 
-            echo "RELEASE - $RELEASE"
-            echo "VERSION_TEST - $VERSION_TEST"
-            echo "GIT_HASH_TEST - $GIT_HASH_TEST"
-            echo "DATE_BUILD_TEST - $DATE_BUILD_TEST"
-            echo "CIRCLE_BRANCH - ${CIRCLE_BRANCH}"
-
-
             case "${CIRCLE_BRANCH}" in
               master|develop|devops)
               docker build -t actionml/spark:latest --no-cache\
