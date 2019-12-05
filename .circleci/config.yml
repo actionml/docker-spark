@@ -43,7 +43,6 @@ jobs:
             SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)
             DATE_BUILD=$(date +'%Y-%m-%d')
             
-
             case "${CIRCLE_BRANCH}" in
               master|develop|devops)
               docker build -t actionml/spark:latest --no-cache\
