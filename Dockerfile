@@ -45,6 +45,9 @@ COPY spark-env.sh ${SPARK_HOME}/conf/
 
 RUN chmod +x /harnesstool/setHarnessHost.sh && echo "* * * * * /bin/bash /harnesstool/setHarnessHost.sh" >> /etc/crontabs/root
 
+RUN curl https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar --create-dirs -o ${SPARK_HOME}/prometheus/jmx_prometheus_javaagent-0.12.0.jar
+COPY config.yaml ${SPARK_HOME}/prometheus/conf/config.yaml 
+
 WORKDIR ${SPARK_HOME}/work
 ENTRYPOINT [ "/entrypoint.sh" ]
 
