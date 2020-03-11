@@ -22,7 +22,8 @@ jobs:
           name: Setup dependencies
           command: |
             latests=$(wget -qO - https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/master/.latests)
-            version=${CIRCLE_TAG#v}
+            version=2.3.3
+            # version=${CIRCLE_TAG#v}
             [ -n "$version" ] || version=$(echo "${latests}" | cut -f1 -d' ')
             printf 'export LATESTS=%s\n' ${latests} >> $BASH_ENV
             printf 'export VERSION=%s\n' ${version} >> $BASH_ENV
@@ -41,15 +42,14 @@ jobs:
           command: |
             SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)
             DATE_BUILD=$(date +'%Y-%m-%d')
-
+            
             case "${CIRCLE_BRANCH}" in
               master|develop|devops)
-              docker image build -f Dockerfile \
+              docker build -t actionml/spark:latest --no-cache\
                 --build-arg release=${CIRCLE_TAG:-build} \
                 --build-arg version=${VERSION%%-*} \
                 --build-arg GIT_HASH=$SHORT_GIT_HASH --build-arg DATE_BUILD=$DATE_BUILD \
-                --build-arg BRANCH=${CIRCLE_BRANCH} \
-                -t actionml/spark:latest ./
+                --build-arg BRANCH=${CIRCLE_BRANCH} .
               ;;
               *)
               ;;

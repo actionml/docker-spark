@@ -8,7 +8,6 @@ ARG GIT_HASH
 ARG DATE_BUILD
 ARG BRANCH
 
-
 LABEL com.actionml.spark.vendor=ActionML \
       com.actionml.spark.version=$version \
       com.actionml.spark.release=$release
@@ -19,9 +18,11 @@ ENV DATE_BUILD=${DATE_BUILD}
 
 ENV SPARK_HOME=/spark \
     SPARK_PGP_KEYS="6EC5F1052DF08FF4 DCE4BFD807461E96"
+RUN apk update && apk add --no-cache curl jq
 
 RUN adduser -Ds /bin/bash -h ${SPARK_HOME} spark && \
     apk add --no-cache bash tini libc6-compat linux-pam krb5 krb5-libs && \
+
 # download dist
     apk add --virtual .deps --no-cache curl tar gnupg && \
     cd /tmp && export GNUPGHOME=/tmp && \
@@ -30,6 +31,7 @@ RUN adduser -Ds /bin/bash -h ${SPARK_HOME} spark && \
         https://archive.apache.org/dist/spark/spark-${version}/{${file},${file}.asc} && \
     gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys ${SPARK_PGP_KEYS} && \
     gpg --batch --verify ${file}.asc ${file} && \
+
 # create spark directories
     mkdir -p ${SPARK_HOME}/work ${SPARK_HOME}/conf && chown spark:spark ${SPARK_HOME}/work && \
     tar -xzf ${file} --no-same-owner --strip-components 1 && \
@@ -38,10 +40,14 @@ RUN adduser -Ds /bin/bash -h ${SPARK_HOME} spark && \
     apk --no-cache del .deps && ls -A | xargs rm -rf
 
 COPY entrypoint.sh /
+COPY setHarnessHost.sh /harnesstool/
 COPY spark-env.sh ${SPARK_HOME}/conf/
+
+RUN chmod +x /harnesstool/setHarnessHost.sh && echo "* * * * * /bin/bash /harnesstool/setHarnessHost.sh" >> /etc/crontabs/root
+
+RUN curl https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar --create-dirs -o ${SPARK_HOME}/prometheus/jmx_prometheus_javaagent-0.12.0.jar
+COPY config.yaml ${SPARK_HOME}/prometheus/conf/config.yaml 
 
 WORKDIR ${SPARK_HOME}/work
 ENTRYPOINT [ "/entrypoint.sh" ]
 
-# Specify the User that the actual main process will run as
-USER spark:spark
