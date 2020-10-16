@@ -6,7 +6,7 @@ services:
     command: master
     ports:
       - 8080:8080
-
+      - 7070:7070
   worker:
     image: actionml/spark:latest
     command: worker spark://master:7077
